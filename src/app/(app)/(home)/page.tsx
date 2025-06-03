@@ -1,12 +1,18 @@
+"use client";
 import AboutSection from '@/components/AboutSection';
 import StatementSection from '@/components/StatementSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import HeroSlider from '@/components/HeroSlider';
+import { useQuery } from '@tanstack/react-query';
+import { useTRPC } from '@/trpc/client';
 
-export default async function Home() {
+export default  function Home() {
+  const trpc = useTRPC();
 
+  const categories =  useQuery(trpc.categories.getMany.queryOptions());
   return (
     <main className="min-h-screen bg-[#F5F5DC]">
+    
       <HeroSlider />
       <AboutSection />
       <StatementSection />
@@ -14,3 +20,5 @@ export default async function Home() {
     </main>
   );
 }
+
+

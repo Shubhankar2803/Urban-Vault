@@ -1,40 +1,27 @@
-import React from 'react'
+import React, { Suspense } from 'react'
+
 import Navbar from './navbar';
 import FooterSection from './footer';
 import { SeacrhFilters } from './search-filters';
 import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-import { Category } from '@/payload-types';
-import { CustomCategory } from './types';
+
+ import { getQueryClient, trpc } from '@/trpc/server';
+import { HydrationBoundary,dehydrate } from '@tanstack/react-query';
 interface Props {
     children:React.ReactNode;
 };
 const Layout =async({children}:Props) => {
-    const payload=await getPayload({
-    config:configPromise,
-  })
-  const data=await payload.find({
-    collection:"categories",
-    depth:1,
-    pagination:false,
-  where:{
-    parent:{
-      exists:false,
-    },
-  },
-  sort:"name"
-  });
-  const formattedData: CustomCategory[]=data.docs.map((doc)=>({
-    ...doc,subcategories:(doc.subcategories?.docs ??[]).map((doc)=>({
-      ...(doc as Category),
-      subcategories:undefined,
-    }))
-  }))
-  console.log(JSON.stringify(data,null,2))
+  const queryClient=getQueryClient();
+  void queryClient.prefetchQuery(
+  trpc.categories.getMany.queryOptions()
+  )
+   
   return (
     <div className='flex flex-col min-h-screen'>
         <Navbar />
-        <SeacrhFilters data={formattedData} />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <Suspense fallback={<p>Loading...</p>}>
+        <SeacrhFilters  /></Suspense> </HydrationBoundary>
         {children}
         <FooterSection />
     </div>
