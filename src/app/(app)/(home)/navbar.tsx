@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { NavbarSIdebar } from "./nav-sidebar";  
 import { Ghost, MenuIcon } from "lucide-react";
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -48,17 +50,20 @@ const navbarItems = [
 ];
 
 const Navbar = () => {
+
+  const trpc= useTRPC();
+  const session=useQuery(trpc.auth.session.queryOptions(),)
   const pathname = usePathname();
  const  [isSidebarOpen,setIsSideBarOpen]= useState(true)
   const signInChild = (
-    <Link href="/sign-in">
-      <span>Login</span>
+    <Link prefetch href="/sign-in">
+      <span>SignIn</span>
     </Link>
-  );
+  ); 
 
   const signUpChild = (
-    <Link href="/sign-up">
-      <span>Startselling</span>
+    <Link prefetch href="/sign-up">
+      <span>SignUp</span>
     </Link>
   );
 
@@ -82,7 +87,20 @@ const Navbar = () => {
         ))}
       </div>
 
-      <div className="hidden lg:flex">
+      {session.data?.user ?(
+        <div className="hidden lg:flex">
+         <Button
+          asChild
+          className="border-l border-t-0 border-b-0 border-r-0 px-12 h-full rounded-none bg-purple-200 text-black hover:bg-purple-300 hover:text-black transition-colors text-lg"
+        >
+         <Link  href="/admin">
+         Dashboard
+         </Link>
+         </Button>
+        </div>
+      ):(
+
+         <div className="hidden lg:flex">
         <Button
           asChild
           variant="secondary"
@@ -98,6 +116,9 @@ const Navbar = () => {
           {signUpChild}
         </Button>
       </div>
+      )}
+
+     
       <div className="flex lg:hidden items-center justify-center">
 
         <Button variant="ghost" className="size-12 border-transparent bg-white"

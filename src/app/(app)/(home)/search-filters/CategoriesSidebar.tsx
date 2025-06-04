@@ -1,5 +1,4 @@
 "use client";
-import { CustomCategory } from "../types";
 import { Sheet,SheetContent,SheetHeader,SheetTitle} from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";

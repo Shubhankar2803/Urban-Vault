@@ -1,12 +1,12 @@
 "use client";
 import { useTRPC } from "@/trpc/client";
-import { CustomCategory } from "../types";
 import { Categories } from "./Categories";
 import { SearchInput } from "./SearchInput";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { CategoriesGetManyOutput } from "@/modules/categories/types";
 
 interface Props{
-    data:CustomCategory[];
+    data:CategoriesGetManyOutput;
 };
 
 export const SeacrhFilters=()=>{
