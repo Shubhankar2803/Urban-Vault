@@ -1,104 +1,119 @@
 'use client';
 
-import { motion, useAnimation } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { useRef } from 'react';
+import Image from 'next/image';
 
 const testimonials = [
   {
     id: 1,
-    name: 'Alice Johnson',
-    role: 'Designer',
+    name: 'Maya Chen',
+    role: 'Fashion Influencer',
     photo: '/t1.webp',
-    quote:
-      "This brand transformed the way I think about design. Bold, unapologetic, and inspiring.",
+    quote: "Urban Vault curates pieces I can't find anywhere else. Every purchase feels like discovering hidden treasure.",
   },
   {
     id: 2,
-    name: 'Mark Stevens',
-    role: 'Developer',
+    name: 'Jordan Blake',
+    role: 'Streetwear Enthusiast',
     photo: '/t2.jpeg',
-    quote:
-      "The maximalist, neobrutalist style really resonates with me. Their work is loud and proud.",
+    quote: "Finally, an e-commerce site that understands urban culture. The selection is unmatched.",
   },
   {
     id: 3,
-    name: 'Jessica Lee',
-    role: 'Entrepreneur',
+    name: 'Alex Rivera',
+    role: 'Creative Director',
     photo: '/t3.webp',
-    quote:
-      "Every detail is crafted with intent. This isn’t just a brand—it’s a movement.",
+    quote: "Urban Vault doesn't just sell clothes—they vault culture. Every brand they feature speaks to authenticity.",
   },
 ];
 
 export default function TestimonialsSection() {
-  const ref = useRef<HTMLElement | null>(null);
-  const controls = useAnimation();
+  const ref = useRef(null);
 
-  useEffect(() => {
-    if (!ref.current) return;
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          controls.start('visible');
-        } else {
-          controls.start('hidden');
-        }
-      },
-      { threshold: [0.5] }
-    );
+  // Smooth staggered animations
+  const yTitle = useSpring(useTransform(scrollYProgress, [0, 0.3], [80, 0]), {
+    stiffness: 45,
+    damping: 30,
+  });
 
-    observer.observe(ref.current);
+  const opacityTitle = useSpring(useTransform(scrollYProgress, [0, 0.3], [0, 1]), {
+    stiffness: 45,
+    damping: 30,
+  });
 
-    return () => observer.disconnect();
-  }, [controls]);
+  const yCards = useSpring(useTransform(scrollYProgress, [0.2, 0.6], [100, 0]), {
+    stiffness: 45,
+    damping: 30,
+  });
 
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.3,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
-  };
+  const opacityCards = useSpring(useTransform(scrollYProgress, [0.2, 0.6], [0, 1]), {
+    stiffness: 45,
+    damping: 30,
+  });
 
   return (
     <section
       ref={ref}
-      className="min-h-screen bg-[#e6ddff] py-20 px-6 flex flex-col items-center"
+      className="min-h-screen bg-black py-20 px-6 flex flex-col items-center border-t-4 border-black"
     >
-      <h2 className="text-4xl font-extrabold text-[#ff007f] mb-12 uppercase tracking-wide">
+      {/* Title */}
+      <motion.h2
+        style={{ y: yTitle, opacity: opacityTitle }}
+        className="text-4xl md:text-6xl font-black text-white mb-16 uppercase tracking-tight"
+      >
         What They Say
-      </h2>
+      </motion.h2>
 
+      {/* Testimonials Grid */}
       <motion.div
-        className="flex flex-col md:flex-row justify-center gap-10 max-w-7xl w-full"
-        variants={containerVariants}
-        initial="hidden"
-        animate={controls}
+        style={{ y: yCards, opacity: opacityCards }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full"
       >
         {testimonials.map(({ id, name, role, photo, quote }) => (
-          <motion.div
+          <div
             key={id}
-            variants={cardVariants}
-            className="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-8 max-w-sm shadow-lg flex flex-col items-center text-center"
+            className="bg-black p-8 border-4 border-black hover:bg-white hover:text-black transition-all duration-300 group"
           >
-            <img
-              src={photo}
-              alt={`${name} photo`}
-              className="w-20 h-20 rounded-full object-cover mb-4 border-4 border-[#ff007f]"
-            />
-            <p className="text-lg text-black font-semibold mb-4">&ldquo;{quote}&rdquo;</p>
-            <div className="font-bold text-[#ff007f]">{name}</div>
-            <div className="text-sm text-black/70">{role}</div>
-          </motion.div>
+            {/* Profile Image */}
+            <div className="mb-6 flex justify-center">
+              <Image
+                src={photo}
+                alt={`${name} photo`}
+                width={80}
+                height={80}
+                className="w-20 h-20 object-cover border-4 border-white group-hover:border-black transition-all duration-300"
+              />
+            </div>
+
+            {/* Quote */}
+            <p className="text-lg text-white group-hover:text-black font-medium mb-6 leading-relaxed">
+              "{quote}"
+            </p>
+
+            {/* Author Info */}
+            <div className="border-t-2 border-white group-hover:border-black pt-4 transition-all duration-300">
+              <div className="font-black text-white group-hover:text-black text-lg uppercase tracking-wide">
+                {name}
+              </div>
+              <div className="text-sm text-gray-300 group-hover:text-gray-600 font-medium">
+                {role}
+              </div>
+            </div>
+          </div>
         ))}
       </motion.div>
+
+      {/* Bottom Accent */}
+      <motion.div
+        style={{ opacity: opacityCards }}
+        className="mt-16 w-24 h-1 bg-black"
+      />
     </section>
   );
 }

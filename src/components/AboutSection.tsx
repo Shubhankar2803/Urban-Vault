@@ -2,66 +2,115 @@
 
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { useRef } from 'react';
-import Image from 'next/image';
 
 export default function AboutSection() {
   const ref = useRef(null);
 
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ['start end', 'center start'],
+    offset: ['start end', 'end start'],
   });
 
-  const yText = useSpring(useTransform(scrollYProgress, [0, 1], [100, 0]), {
-    stiffness: 70,
-    damping: 20,
+  // Ultra-smooth minimal animations
+  const yContent = useSpring(useTransform(scrollYProgress, [0.2, 0.6], [50, 0]), {
+    stiffness: 30,
+    damping: 40,
   });
 
-  const opacityText = useTransform(scrollYProgress, [0, 0.5], [0, 1]);
-
-  const yImage = useSpring(useTransform(scrollYProgress, [0, 1], [-80, 0]), {
-    stiffness: 80,
-    damping: 20,
+  const opacityContent = useSpring(useTransform(scrollYProgress, [0.2, 0.5], [0, 1]), {
+    stiffness: 30,
+    damping: 40,
   });
 
-  const scaleImage = useSpring(useTransform(scrollYProgress, [0, 1], [1.05, 1]), {
-    stiffness: 60,
-    damping: 18,
+  // Subtle line animation
+  const lineWidth = useSpring(useTransform(scrollYProgress, [0.4, 0.7], [0, 100]), {
+    stiffness: 25,
+    damping: 35,
+  });
+
+  // Additional content animations
+  const ySubContent = useSpring(useTransform(scrollYProgress, [0.5, 0.8], [30, 0]), {
+    stiffness: 30,
+    damping: 40,
+  });
+
+  const opacitySubContent = useSpring(useTransform(scrollYProgress, [0.5, 0.8], [0, 1]), {
+    stiffness: 30,
+    damping: 40,
   });
 
   return (
     <section
       ref={ref}
-      className="min-h-screen flex flex-col-reverse md:flex-row items-center justify-center gap-10 px-8 py-20 bg-[#e6ddff]"
+      className="min-h-screen flex items-center justify-center bg-black relative"
     >
-      {/* Text Content */}
+      {/* Minimal Content */}
       <motion.div
-        style={{ y: yText, opacity: opacityText }}
-        className="w-full md:w-1/2 text-center md:text-left"
+        style={{ y: yContent, opacity: opacityContent }}
+        className="text-center max-w-4xl mx-auto px-8"
       >
-        <h2 className="text-4xl md:text-6xl font-extrabold text-[#ff007f] leading-tight mb-6">
-          About Our Brand
-        </h2>
-        <p className="text-lg md:text-xl text-black font-medium max-w-xl">
-          We're not just selling products—we’re creating a bold identity. Our style is
-          rooted in neobrutalism, layered with maximalist energy and clean, intentional design.
-        </p>
-      </motion.div>
+        {/* Title */}
+        <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tight mb-6">
+          Urban Vault
+        </h1>
 
-      {/* Image */}
-      <motion.div
-        style={{ y: yImage, scale: scaleImage }}
-        className="w-full md:w-1/2 flex justify-center"
-      >
-        <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-3xl overflow-hidden shadow-2xl">
-          <Image
-            src="/about.jpeg"
-            alt="About us"
-            fill
-            priority
-            className="object-cover"
-          />
-        </div>
+        {/* Animated Line */}
+        <motion.div
+          style={{ width: `${lineWidth}%` }}
+          className="h-px bg-white mx-auto mb-8"
+        />
+
+        {/* Main Description */}
+        <p className="text-lg md:text-xl text-gray-300 font-light leading-relaxed mb-12">
+          Curated fashion for the bold
+        </p>
+
+        {/* Additional Content */}
+        <motion.div
+          style={{ y: ySubContent, opacity: opacitySubContent }}
+          className="space-y-8"
+        >
+          {/* Mission Statement */}
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-white uppercase tracking-wide mb-4">
+              Our Mission
+            </h2>
+            <p className="text-base md:text-lg text-gray-400 font-light leading-relaxed">
+              To vault the finest pieces from emerging and established brands, creating a sanctuary for those who refuse to blend in.
+            </p>
+          </div>
+
+          {/* Stats/Features */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-black text-white mb-2">50+</div>
+              <div className="text-sm text-gray-400 uppercase tracking-wide">Curated Brands</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-black text-white mb-2">1000+</div>
+              <div className="text-sm text-gray-400 uppercase tracking-wide">Unique Pieces</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-black text-white mb-2">24/7</div>
+              <div className="text-sm text-gray-400 uppercase tracking-wide">Style Support</div>
+            </div>
+          </div>
+
+          {/* Values */}
+          <div className="mt-16 space-y-6">
+            <div className="w-16 h-px bg-white mx-auto"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+              <div>
+                <h3 className="text-lg font-bold text-white uppercase tracking-wide mb-2">Authenticity</h3>
+                <p className="text-gray-400 text-sm">Every piece is verified for quality and originality.</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white uppercase tracking-wide mb-2">Exclusivity</h3>
+                <p className="text-gray-400 text-sm">Limited drops and rare finds you won't see everywhere.</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </motion.div>
     </section>
   );

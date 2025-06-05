@@ -11,8 +11,7 @@ export default  function Home() {
 
   const {data} =  useQuery(trpc.auth.session.queryOptions());
   return (
-    <main className="min-h-screen bg-[#F5F5DC]">
-    {JSON.stringify(data?.user, null, 2)}
+    <main className="min-h-screen bg-black text-white ">
       <HeroSlider />
       <AboutSection />
       <StatementSection />

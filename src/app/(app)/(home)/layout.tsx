@@ -1,8 +1,8 @@
 import React, { Suspense } from 'react'
 
-import Navbar from './navbar';
-import FooterSection from './footer';
-import { SeacrhFilters } from './search-filters';
+import Navbar from '@/modules/home/ui/components/navbar';
+import FooterSection from '@/modules/home/ui/components/footer';
+import { SeacrhFilters } from '@/modules/home/ui/components/search-filters';
 import configPromise from '@payload-config'
 
  import { getQueryClient, trpc } from '@/trpc/server';
