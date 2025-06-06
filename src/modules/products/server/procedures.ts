@@ -1,17 +1,48 @@
-import { Category } from "@/payload-types";
+import { Category, Media } from "@/payload-types";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
-import configPromise from '@payload-config'
-import type {  Where } from 'payload'
+
+import type {  Sort, Where } from 'payload'
 import  z  from "zod";
 export const productsRouter = createTRPCRouter({
 
     
     getMany:baseProcedure
     .input(z.object({
+      cursor:z.number().default(1),
+      lmit:z.number().default(2),
         category: z.string().nullable().optional(),
+        minPrice: z.string().nullable().optional(),
+        maxPrice: z.string().nullable().optional(),
+        tags: z.array(z.string()).nullable().optional(),
+        sort: z.enum(["curated", "trending", "hot&new"]).nullable().optional(),
         
     })).query(async ({ctx,input}) => {
       const where:Where={}
+      let sort:Sort="-createdAt";
+      if(input.sort==="curated"){
+
+        sort="-createdAt";
+      }
+       if(input.sort==="trending"){
+
+        sort="-createdAt";
+      }
+      if(input.sort==="hot&new"){
+
+        sort="+createdAt";
+      }
+
+      if(input.minPrice){
+        where.price={
+          greater_than_equal:input.minPrice,
+        }
+        if(input.maxPrice){
+          where.price={
+            
+            less_than_equal:input.maxPrice,
+          }
+        }
+      } 
       if(input.category){
        const categoriesData=await ctx.db.find({
         collection:"categories",
@@ -42,26 +73,39 @@ export const productsRouter = createTRPCRouter({
         subcategories.push(
           ...parentCategory.subcategories.map((subcatgory)=> subcatgory.slug)
         )
+            where["category.slug"]={
+               in:[parentCategory.slug, ...subcategories] 
 
+               }
 
        }
-       where["category.slug"]={
-          in:[parentCategory.slug, ...subcategories] 
-
-        }
+      
       }
 
-          
+      if(input.tags && input.tags.length > 0){
+            where["tags.name"]={
+                in: input.tags,
+            }
+          }
 
-            const data=await ctx.db.find({
-    collection:"products",
-    depth:1,
-    where,
+       const data=await ctx.db.find({
+            collection:"products",
+             depth:1,
+             where,
+             sort,
+             page:input.cursor,
+             limit:input.lmit,
  
   });
 
   await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate a delay for suspense
   
-        return data;
+        return {
+          ...data,
+          docs:data.docs.map((doc) => ({
+            ...doc,
+            image:doc.image as Media | null,
+          }))
+        };
     })
 })
